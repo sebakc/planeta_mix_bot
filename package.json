@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.7",
     "dotenv": "^16.4.1",
+    "node-cache": "^5.1.2",
     "node-irc": "^0.0.5"
   }
 }
