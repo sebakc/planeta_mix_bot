@@ -7,6 +7,7 @@ const myCache = new NodeCache()
 const TIMEOUT = 185
 let speak = false
 let start = new Date()
+let temasTimeout, temasInterval
 
 const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, IG_LINK, API, TEMAS, PASSWORD } = process.env
 var client = new irc.Client(HOST, BOT_NICK, {
@@ -52,8 +53,6 @@ const temas = (sec = 10) => {
   }, 1000 * sec)
 }
 
-let temasInterval
-
 client.addListener(`message${CHANNEL}`, function (from, message) {
   //if (USERS.includes(from)) {
   if (message.includes('+radio')) {
@@ -68,14 +67,16 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
   if (message === '+temas') {
     myCache.set('scream', true)
     temasInterval = temas()
-    setTimeout(() => {
+    temasTimeout = setTimeout(() => {
       say(CHANNEL, 'temas off')
-      clearInterval(temasInterval)
       myCache.set('scream', false)
+      clearInterval(temasInterval)
     }, 1000 * 60 * parseInt(TEMAS))
   }
   if (message === '+temas down') {
+    myCache.set("current", '')
     clearInterval(temasInterval)
+    clearTimeout(temasTimeout)
     myCache.set('scream', false)
   }
   // }
