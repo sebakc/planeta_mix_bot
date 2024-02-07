@@ -48,7 +48,6 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
       say(CHANNEL, IG_LINK);
     }
     if (message === '+temas') {
-      console.log(message)
       myCache.set('scream', true)
       setTimeout(() => {
         myCache.set('scream', false)
@@ -57,12 +56,9 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
   }
 });
 setInterval(() => {
-  console.log(1)
   axios.post(API)
   .then(res => {
-      console.log(2)
       const prev = myCache.get("current")
-      console.log(prev, res.data.title, myCache.get('scream'), prev !== res.data.title)
       if (prev !== res.data.title && myCache.get('scream')) {
         say(CHANNEL, `${res.data.title} (8)`);
         success = myCache.set("current", res.data.title);
