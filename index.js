@@ -4,8 +4,10 @@ const axios = require('axios')
 const NodeCache = require( "node-cache" );
 const myCache = new NodeCache()
 
-const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, API, TEMAS } = process.env
-var client = new ircClient(HOST, PORT, BOT_NICK, BOT_NAME);
+const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, API, TEMAS, PASSWORD } = process.env
+const params = [HOST, PORT, BOT_NICK, BOT_NAME]
+PASSWORD && params.push(PASSWORD)
+var client = new ircClient(...params);
 
 client.on('ready', function () {
   client.join(CHANNEL);
