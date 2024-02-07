@@ -5,7 +5,7 @@ const axios = require('axios')
 const NodeCache = require( "node-cache" );
 const myCache = new NodeCache()
 
-const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, API, TEMAS, PASSWORD } = process.env
+const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, IG_LINK, API, TEMAS, PASSWORD } = process.env
 const params = [HOST, PORT, BOT_NICK, BOT_NAME]
 // PASSWORD && params.push(PASSWORD)
 // console.log(params)
@@ -41,7 +41,14 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
     if (message.includes('+radio')) {
       say(CHANNEL, RADIO_LINK);
     }
+    if (message.includes('+insta')) {
+      say(CHANNEL, IG_LINK);
+    }
+    if (message.includes('+ig')) {
+      say(CHANNEL, IG_LINK);
+    }
     if (message === '+temas') {
+      console.log(message)
       myCache.set('scream', true)
       setTimeout(() => {
         myCache.set('scream', false)
@@ -50,11 +57,14 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
   }
 });
 setInterval(() => {
+  console.log(1)
   axios.post(API)
-    .then(res => {
+  .then(res => {
+      console.log(2)
       const prev = myCache.get("current")
+      console.log(prev, res.data.title, myCache.get('scream'), prev !== res.data.title)
       if (prev !== res.data.title && myCache.get('scream')) {
-        say(CHANNEL, `${res.data.title} 🎶`);
+        say(CHANNEL, `${res.data.title} (8)`);
         success = myCache.set("current", res.data.title);
       }
     })
