@@ -15,12 +15,20 @@ var client = new irc.Client(HOST, BOT_NICK, {
   userName: BOT_NICK,
   password: PASSWORD,
   realName: BOT_NAME,
-  autoRejoin: true,
-  autoConnect: true,
-  floodProtection: true
 });
 
+let speak = false
+let start = new Date()
+setTimeout(() => {
+  speak = true
+}, 1000 * 200)
+
 const say = (channel, message) => {
+  if(!speak) {
+    const now = new Date()
+    console.log(`w8 ${200 - ((now - start)/1000)} seconds`)
+    return
+  }
   try {
     client.say(channel, message)
   } catch (error) {
