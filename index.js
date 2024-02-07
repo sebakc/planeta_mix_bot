@@ -1,7 +1,7 @@
 require('dotenv').config()
 var irc = require('irc')
 const axios = require('axios')
-const NodeCache = require( "node-cache" );
+const NodeCache = require( "node-cache" )
 const myCache = new NodeCache()
 
 const TIMEOUT = 185
@@ -42,7 +42,7 @@ const temas = (sec = 10) => {
         const prev = myCache.get("current")
         if (prev !== res.data.title && myCache.get('scream')) {
           say(CHANNEL, `${res.data.title} (8)`);
-          success = myCache.set("current", res.data.title);
+          success = myCache.set("current", res.data.title)
         }
       })
   }
@@ -55,28 +55,28 @@ const temas = (sec = 10) => {
 let temasInterval
 
 client.addListener(`message${CHANNEL}`, function (from, message) {
-  if (USERS.includes(from)) {
-    if (message.includes('+radio')) {
-      say(CHANNEL, RADIO_LINK);
-    }
-    if (message.includes('+insta')) {
-      say(CHANNEL, IG_LINK);
-    }
-    if (message.includes('+ig')) {
-      say(CHANNEL, IG_LINK);
-    }
-    if (message === '+temas') {
-      myCache.set('scream', true)
-      temasInterval = temas()
-      setTimeout(() => {
-        say(CHANNEL, 'temas off');
-        clearInterval(temasInterval)
-        myCache.set('scream', false)
-      }, 1000 * 60 * parseInt(TEMAS))
-    }
-    if (message === '+temas down') {
+  //if (USERS.includes(from)) {
+  if (message.includes('+radio')) {
+    say(CHANNEL, RADIO_LINK);
+  }
+  if (message.includes('+insta')) {
+    say(CHANNEL, IG_LINK);
+  }
+  if (message.includes('+ig')) {
+    say(CHANNEL, IG_LINK);
+  }
+  if (message === '+temas') {
+    myCache.set('scream', true)
+    temasInterval = temas()
+    setTimeout(() => {
+      say(CHANNEL, 'temas off')
       clearInterval(temasInterval)
       myCache.set('scream', false)
-    }
+    }, 1000 * 60 * parseInt(TEMAS))
   }
-});
+  if (message === '+temas down') {
+    clearInterval(temasInterval)
+    myCache.set('scream', false)
+  }
+  // }
+})
