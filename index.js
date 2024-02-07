@@ -26,7 +26,7 @@ setTimeout(() => {
 const say = (channel, message) => {
   if(!speak) {
     const now = new Date()
-    console.log(`w8 ${200 - ((now - start)/1000)} seconds`)
+    console.log(`w8 ${200 - ((now - start)/1000)} seconds more`)
     return
   }
   try {
