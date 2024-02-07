@@ -12,6 +12,12 @@ const params = [HOST, PORT, BOT_NICK, BOT_NAME]
 var client = new ircClient(...params);
 var client = new irc.Client(HOST, BOT_NICK, {
   channels: [CHANNEL],
+  userName: BOT_NICK,
+  password: PASSWORD,
+  realName: BOT_NAME,
+  autoRejoin: true,
+  autoConnect: true,
+  floodProtection: true
 });
 
 const say = (channel, message) => {
