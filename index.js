@@ -26,7 +26,7 @@ const say = async (channel, message) => {
 
 client.addListener(`message${CHANNEL}`, async function (from, message) {
   if (USERS.includes(from)) {
-    if (message === '+radio') {
+    if (message.includes('+radio')) {
       await say(CHANNEL, RADIO_LINK);
     }
     if (message === '+temas') {
