@@ -14,20 +14,18 @@ var client = new irc.Client(HOST, BOT_NICK, {
   channels: [CHANNEL],
 });
 
-const say = async (channel, message) => {
+const say = (channel, message) => {
   try {
-    await client.say(channel, message)
+    client.say(channel, message)
   } catch (error) {
-    setTimeout(async () => {
-      await say(channel, message)
-    }, 1000 * 200)
+    console.log(error)
   }
 }
 
-client.addListener(`message${CHANNEL}`, async function (from, message) {
+client.addListener(`message${CHANNEL}`, function (from, message) {
   if (USERS.includes(from)) {
     if (message.includes('+radio')) {
-      await say(CHANNEL, RADIO_LINK);
+      say(CHANNEL, RADIO_LINK);
     }
     if (message === '+temas') {
       myCache.set('scream', true)
@@ -39,12 +37,11 @@ client.addListener(`message${CHANNEL}`, async function (from, message) {
 });
 setInterval(() => {
   axios.post(API)
-    .then(async res => {
+    .then(res => {
       const prev = myCache.get("current")
       if (prev !== res.data.title && myCache.get('scream')) {
-        await say(CHANNEL, `${res.data.title} 🎶`);
+        say(CHANNEL, `${res.data.title} 🎶`);
         success = myCache.set("current", res.data.title);
       }
     })
 }, 10000)
-client.connect();
