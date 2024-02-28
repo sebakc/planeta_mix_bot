@@ -4,16 +4,21 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lalala": "node lalala.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "audio-decode": "^2.2.0",
     "axios": "^1.6.7",
     "dotenv": "^16.4.1",
+    "fluent-ffmpeg": "^2.1.2",
     "irc": "^0.5.2",
     "node-cache": "^5.1.2",
     "node-telegram-bot-api": "^0.64.0",
+    "ogg-opus-decoder": "^1.6.12",
     "telegram": "^2.19.20"
   }
 }

@@ -4,7 +4,9 @@ const axios = require('axios')
 const NodeCache = require( "node-cache" )
 const myCache = new NodeCache()
 const fs = require('fs')
+const request = require('request')
 const telegram = require('./telegram')
+const audioTransformer = require('./audio-transformer')
 let speak = false
 let start = new Date()
 let temasTimeout, temasInterval
@@ -14,7 +16,6 @@ const {
   USERS,
   BOT_NAME,
   HOST,
-  PORT,
   BOT_NICK,
   RADIO_LINK,
   IG_LINK,
@@ -49,7 +50,6 @@ const say = (channel, message) => {
 setTimeout(() => {
   speak = true
   say(CHANNEL, 'bot online')
-  say(CHANNEL, '!op')
 }, 1000 * TIMEOUT)
 
 const temas = (sec = 10) => {
@@ -73,10 +73,33 @@ write = (file, line) => {
   fs.writeFileSync(file, line)
 }
 
-telegram.on('message', (msg) => {
-  const chatId = msg.chat.id;
+telegram.on('message', async (msg) => {
+  // const chatId = msg.chat.id;
+  if (msg.voice?.file_id) {
+    await telegram.getFileLink(msg.voice.file_id)
+    .then(fileUri => {
+      // The path where you want to save the downloaded file
+      const filePath = 'original_audio.ogg';
+      
+      // Download the file using the 'request' library
+      request.get(fileUri)
+        .on('error', function(err) {
+          console.log(err);
+        })
+        .pipe(fs.createWriteStream(filePath))
+        .on('close', async () => {
+          console.log('File downloaded successfully');
+          await audioTransformer(filePath, 'final_audio.wav')
+          console.log('File transformed successfully');
+        })
+    })
+    .catch(error => {
+      console.log('An error occurred:', error);
+    })
+  }
   const { text } = msg
-  const args = text.split('#')
+  const args = text?.split('#')
+  if(!args) return
   if (text.includes('chan#')) {
     const [ channel, message ] = args[1].split(/ (.*)/s)
     say(`#${channel}`, message)
@@ -89,11 +112,24 @@ telegram.on('message', (msg) => {
 
 client.addListener('pm', function (from, message) {
   telegram.sendMessage(1477994016, `${from}: ${message}`);
-  if (USERS.includes(from)) {
-    if (message.includes('!say#')) {
-      const [ command, sayit ] = message.split(/ (.*)/s)
-      const channel = command.replace('!say', '')
-      say(channel, sayit)
+  if (USERS.toLowerCase().includes(from.toLowerCase())) {
+    const args = message?.split('#')
+    if(!args) return
+    // if (message.includes('!msg#')) {
+    //   const [ user, sayit ] = args[1].split(/ (.*)/s)
+    //   say(user, sayit)
+    // }
+    if (message.includes('!chan#')) {
+      const [ channel, sayit ] = args[1].split(/ (.*)/s)
+      say(`#${channel}`, sayit)
+    }
+    if (message.includes('!viudaysergioseamanlocamente(ayuda)!aiura')) {
+      say(from, '!chan#elcanal el mensaje que quieres mandar. Ej: !chan#planeta_mix el seba es un ser de luz')
+      say(from, '+temas. Para que el bot diga que cancion esta sonando, dura 2 horas')
+      say(from, '+temas down. Para que el bot deje de decir que cancion esta sonando')
+      say(from, '+ig. Para que muestre el instagram')
+      say(from, '+insta. Para que muestre el instagram')
+      say(from, '+radio. Para que muestre la radio')
     }
   }
 })
