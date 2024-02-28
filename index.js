@@ -23,6 +23,7 @@ const {
   TEMAS,
   PASSWORD,
   START_TIMEOUT,
+  TELEGRAM_CHAT_ID
 } = process.env
 
 const TIMEOUT = 5 || START_TIMEOUT
@@ -75,6 +76,7 @@ write = (file, line) => {
 
 telegram.on('message', async (msg) => {
   // const chatId = msg.chat.id;
+  // console.log(chatId)
   if (msg.voice?.file_id) {
     await telegram.getFileLink(msg.voice.file_id)
     .then(fileUri => {
@@ -111,7 +113,7 @@ telegram.on('message', async (msg) => {
 });
 
 client.addListener('pm', function (from, message) {
-  telegram.sendMessage(1477994016, `${from}: ${message}`);
+  telegram.sendMessage(TELEGRAM_CHAT_ID, `${from}: ${message}`);
   if (USERS.toLowerCase().includes(from.toLowerCase())) {
     const args = message?.split('#')
     if(!args) return
@@ -123,7 +125,7 @@ client.addListener('pm', function (from, message) {
       const [ channel, sayit ] = args[1].split(/ (.*)/s)
       say(`#${channel}`, sayit)
     }
-    if ('!viudaysergioseamanlocamente(ayuda)!aiura'.includes(message)) {
+    if ('!viudaysergio1313!aiura'.includes(message)) {
       say(from, '!chan#elcanal el mensaje que quieres mandar. Ej: !chan#planeta_mix el seba es un ser de luz')
       say(from, '+temas. Para que el bot diga que cancion esta sonando, dura 2 horas')
       say(from, '+temas down. Para que el bot deje de decir que cancion esta sonando')
