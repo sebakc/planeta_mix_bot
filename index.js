@@ -123,7 +123,7 @@ client.addListener('pm', function (from, message) {
       const [ channel, sayit ] = args[1].split(/ (.*)/s)
       say(`#${channel}`, sayit)
     }
-    if (message.includes('!viudaysergioseamanlocamente(ayuda)!aiura')) {
+    if ('!viudaysergioseamanlocamente(ayuda)!aiura'.includes(message)) {
       say(from, '!chan#elcanal el mensaje que quieres mandar. Ej: !chan#planeta_mix el seba es un ser de luz')
       say(from, '+temas. Para que el bot diga que cancion esta sonando, dura 2 horas')
       say(from, '+temas down. Para que el bot deje de decir que cancion esta sonando')
