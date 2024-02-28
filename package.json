@@ -13,6 +13,7 @@
     "dotenv": "^16.4.1",
     "irc": "^0.5.2",
     "node-cache": "^5.1.2",
-    "node-irc": "^0.0.5"
+    "node-telegram-bot-api": "^0.64.0",
+    "telegram": "^2.19.20"
   }
 }

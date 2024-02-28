@@ -3,13 +3,28 @@ var irc = require('irc')
 const axios = require('axios')
 const NodeCache = require( "node-cache" )
 const myCache = new NodeCache()
-
-const TIMEOUT = 185
+const fs = require('fs')
+const telegram = require('./telegram')
 let speak = false
 let start = new Date()
 let temasTimeout, temasInterval
 
-const { CHANNEL, USERS, BOT_NAME, HOST, PORT, BOT_NICK, RADIO_LINK, IG_LINK, API, TEMAS, PASSWORD } = process.env
+const {
+  CHANNEL,
+  USERS,
+  BOT_NAME,
+  HOST,
+  PORT,
+  BOT_NICK,
+  RADIO_LINK,
+  IG_LINK,
+  API,
+  TEMAS,
+  PASSWORD,
+  START_TIMEOUT,
+} = process.env
+
+const TIMEOUT = 5 || START_TIMEOUT
 var client = new irc.Client(HOST, BOT_NICK, {
   channels: [CHANNEL],
   userName: BOT_NICK,
@@ -34,6 +49,7 @@ const say = (channel, message) => {
 setTimeout(() => {
   speak = true
   say(CHANNEL, 'bot online')
+  say(CHANNEL, '!op')
 }, 1000 * TIMEOUT)
 
 const temas = (sec = 10) => {
@@ -53,15 +69,43 @@ const temas = (sec = 10) => {
   }, 1000 * sec)
 }
 
-client.addListener(`message${CHANNEL}`, function (from, message) {
-  //if (USERS.includes(from)) {
-  if (message.includes('+radio')) {
+write = (file, line) => {
+  fs.writeFileSync(file, line)
+}
+
+telegram.on('message', (msg) => {
+  const chatId = msg.chat.id;
+  const { text } = msg
+  const args = text.split('#')
+  if (text.includes('chan#')) {
+    const [ channel, message ] = args[1].split(/ (.*)/s)
+    say(`#${channel}`, message)
+  }
+  if (text.includes('msg#')) {
+    const [ user, message ] = args[1].split(/ (.*)/s)
+    say(user, message)
+  }
+});
+
+client.addListener('pm', function (from, message) {
+  telegram.sendMessage(1477994016, `${from}: ${message}`);
+  if (USERS.includes(from)) {
+    if (message.includes('!say#')) {
+      const [ command, sayit ] = message.split(/ (.*)/s)
+      const channel = command.replace('!say', '')
+      say(channel, sayit)
+    }
+  }
+})
+
+const actions = (message) => {
+  if (message === '+radio') {
     say(CHANNEL, RADIO_LINK);
   }
-  if (message.includes('+insta')) {
+  if (message === '+insta') {
     say(CHANNEL, IG_LINK);
   }
-  if (message.includes('+ig')) {
+  if (message === '+ig') {
     say(CHANNEL, IG_LINK);
   }
   if (message === '+temas') {
@@ -79,5 +123,11 @@ client.addListener(`message${CHANNEL}`, function (from, message) {
     clearTimeout(temasTimeout)
     myCache.set('scream', false)
   }
-  // }
+}
+client.addListener(`message${CHANNEL}`, function (from, message) {
+  actions(message)
 })
+
+client.addListener('error', function(message) {
+  console.log('error: ', message);
+});
