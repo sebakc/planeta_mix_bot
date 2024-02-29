@@ -5,6 +5,7 @@ const NodeCache = require( "node-cache" )
 const myCache = new NodeCache()
 const fs = require('fs')
 const request = require('request')
+const OpenAI = require('openai')
 const telegram = require('./telegram')
 const audioTransformer = require('./audio-transformer')
 let speak = false
@@ -23,8 +24,11 @@ const {
   TEMAS,
   PASSWORD,
   START_TIMEOUT,
-  TELEGRAM_CHAT_ID
+  TELEGRAM_CHAT_ID,
+  OPENAI_API_KEY
 } = process.env
+
+const openai = new OpenAI({apiKey: OPENAI_API_KEY});
 
 const TIMEOUT = 5 || START_TIMEOUT
 var client = new irc.Client(HOST, BOT_NICK, {
@@ -74,17 +78,27 @@ write = (file, line) => {
   fs.writeFileSync(file, line)
 }
 
+let command = ''
+
 telegram.on('message', async (msg) => {
   // const chatId = msg.chat.id;
   // console.log(chatId)
+  const { text } = msg
+  const args = text?.split('$') || []
+  if (text === '!clear') command = ''
+  if (args[0] === 'set') {
+    command = args[1]
+    return
+  }
+  if(!args) return
   if (msg.voice?.file_id) {
     await telegram.getFileLink(msg.voice.file_id)
-    .then(fileUri => {
+    .then(async fileUri => {
       // The path where you want to save the downloaded file
       const filePath = 'original_audio.ogg';
       
       // Download the file using the 'request' library
-      request.get(fileUri)
+      await request.get(fileUri)
         .on('error', function(err) {
           console.log(err);
         })
@@ -92,6 +106,14 @@ telegram.on('message', async (msg) => {
         .on('close', async () => {
           console.log('File downloaded successfully');
           await audioTransformer(filePath, 'final_audio.wav')
+          const transcription = await openai.audio.transcriptions.create({
+            file: fs.createReadStream("final_audio.wav"),
+            model: "whisper-1",
+            language: "es",
+          })
+          if (command.length) {
+            say(command, transcription.text)
+          }
           console.log('File transformed successfully');
         })
     })
@@ -99,14 +121,14 @@ telegram.on('message', async (msg) => {
       console.log('An error occurred:', error);
     })
   }
-  const { text } = msg
-  const args = text?.split('#')
-  if(!args) return
-  if (text.includes('chan#')) {
+  if (command.length) {
+    say(command, args[0])
+  }
+  if (args[0] === 'chan') {
     const [ channel, message ] = args[1].split(/ (.*)/s)
     say(`#${channel}`, message)
   }
-  if (text.includes('msg#')) {
+  if (args[0] === 'msg') {
     const [ user, message ] = args[1].split(/ (.*)/s)
     say(user, message)
   }

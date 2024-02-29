@@ -19,6 +19,7 @@
     "node-cache": "^5.1.2",
     "node-telegram-bot-api": "^0.64.0",
     "ogg-opus-decoder": "^1.6.12",
+    "openai": "^4.28.4",
     "telegram": "^2.19.20"
   }
 }
