@@ -13,7 +13,7 @@ let start = new Date()
 let temasTimeout, temasInterval
 
 const {
-  CHANNEL,
+  CHANNELS,
   USERS,
   BOT_NAME,
   HOST,
@@ -27,12 +27,13 @@ const {
   TELEGRAM_CHAT_ID,
   OPENAI_API_KEY
 } = process.env
-
+let CHANNELS2 = CHANNELS.split(',')
+const CHANNEL = CHANNELS2[0]
 const openai = new OpenAI({apiKey: OPENAI_API_KEY});
 
 const TIMEOUT = 5 || START_TIMEOUT
 var client = new irc.Client(HOST, BOT_NICK, {
-  channels: [CHANNEL],
+  channels: CHANNELS2,
   userName: BOT_NICK,
   password: PASSWORD,
   realName: BOT_NAME,
