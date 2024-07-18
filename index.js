@@ -140,6 +140,7 @@ if(TELEGRAM_CHAT_ID) {
 client.addListener('pm', function (from, message) {
   if(TELEGRAM_CHAT_ID) {
     telegram.sendMessage(TELEGRAM_CHAT_ID, `${from}: ${message}`);
+  }
   if (USERS.toLowerCase().includes(from.toLowerCase())) {
     const args = message?.split('#')
     if(!args) return
