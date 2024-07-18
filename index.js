@@ -8,6 +8,7 @@ const request = require('request')
 const OpenAI = require('openai')
 const telegram = require('./telegram')
 const audioTransformer = require('./audio-transformer')
+const horoscopo = require('./horoscopo')
 let speak = false
 let start = new Date()
 let temasTimeout, temasInterval
@@ -164,6 +165,15 @@ client.addListener('pm', function (from, message) {
 })
 
 const actions = (message) => {
+  if (message.includes('+horoscopo') || message.includes('+horo')) {
+    const sign = message.split(' ')[1]
+    horoscopo(sign)
+      .then(res => {
+        res.forEach(r => {
+          say(CHANNEL, r)
+        })
+      })
+  }
   if (message === '+radio') {
     say(CHANNEL, RADIO_LINK);
   }
