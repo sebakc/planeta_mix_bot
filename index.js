@@ -81,62 +81,65 @@ write = (file, line) => {
 
 let command = ''
 
-telegram.on('message', async (msg) => {
-  // const chatId = msg.chat.id;
-  // console.log(chatId)
-  const { text } = msg
-  const args = text?.split('$') || []
-  if (text === '!clear') command = ''
-  if (args[0] === 'set') {
-    command = args[1]
-    return
-  }
-  if(!args) return
-  if (msg.voice?.file_id) {
-    await telegram.getFileLink(msg.voice.file_id)
-    .then(async fileUri => {
-      // The path where you want to save the downloaded file
-      const filePath = 'original_audio.ogg';
-      
-      // Download the file using the 'request' library
-      await request.get(fileUri)
-        .on('error', function(err) {
-          console.log(err);
-        })
-        .pipe(fs.createWriteStream(filePath))
-        .on('close', async () => {
-          console.log('File downloaded successfully');
-          await audioTransformer(filePath, 'final_audio.wav')
-          const transcription = await openai.audio.transcriptions.create({
-            file: fs.createReadStream("final_audio.wav"),
-            model: "whisper-1",
-            language: "es",
+if(TELEGRAM_CHAT_ID) {
+  telegram.on('message', async (msg) => {
+    // const chatId = msg.chat.id;
+    // console.log(chatId)
+    const { text } = msg
+    const args = text?.split('$') || []
+    if (text === '!clear') command = ''
+    if (args[0] === 'set') {
+      command = args[1]
+      return
+    }
+    if(!args) return
+    if (msg.voice?.file_id) {
+      await telegram.getFileLink(msg.voice.file_id)
+      .then(async fileUri => {
+        // The path where you want to save the downloaded file
+        const filePath = 'original_audio.ogg';
+        
+        // Download the file using the 'request' library
+        await request.get(fileUri)
+          .on('error', function(err) {
+            console.log(err);
           })
-          if (command.length) {
-            say(command, transcription.text)
-          }
-          console.log('File transformed successfully');
-        })
-    })
-    .catch(error => {
-      console.log('An error occurred:', error);
-    })
-  }
-  if (command.length) {
-    say(command, args[0])
-  }
-  if (args[0] === 'chan') {
-    const [ channel, message ] = args[1].split(/ (.*)/s)
-    say(`#${channel}`, message)
-  }
-  if (args[0] === 'msg') {
-    const [ user, message ] = args[1].split(/ (.*)/s)
-    say(user, message)
-  }
-});
+          .pipe(fs.createWriteStream(filePath))
+          .on('close', async () => {
+            console.log('File downloaded successfully');
+            await audioTransformer(filePath, 'final_audio.wav')
+            const transcription = await openai.audio.transcriptions.create({
+              file: fs.createReadStream("final_audio.wav"),
+              model: "whisper-1",
+              language: "es",
+            })
+            if (command.length) {
+              say(command, transcription.text)
+            }
+            console.log('File transformed successfully');
+          })
+      })
+      .catch(error => {
+        console.log('An error occurred:', error);
+      })
+    }
+    if (command.length) {
+      say(command, args[0])
+    }
+    if (args[0] === 'chan') {
+      const [ channel, message ] = args[1].split(/ (.*)/s)
+      say(`#${channel}`, message)
+    }
+    if (args[0] === 'msg') {
+      const [ user, message ] = args[1].split(/ (.*)/s)
+      say(user, message)
+    }
+  });  
+}
 
 client.addListener('pm', function (from, message) {
-  telegram.sendMessage(TELEGRAM_CHAT_ID, `${from}: ${message}`);
+  if(TELEGRAM_CHAT_ID) {
+    telegram.sendMessage(TELEGRAM_CHAT_ID, `${from}: ${message}`);
   if (USERS.toLowerCase().includes(from.toLowerCase())) {
     const args = message?.split('#')
     if(!args) return
