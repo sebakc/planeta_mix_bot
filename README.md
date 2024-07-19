@@ -1,13 +1,12 @@
 # IRC bot
-
+IRC bot with integrations with Telegram and horoscope
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
-
-You need to have Node.js and npm installed on your machine. To install them, you can download them from [here](https://nodejs.org/en/download/).
+Install nodejs and ffmpeg or docker and docker-compose.
 
 ### Installing
 
@@ -37,6 +36,7 @@ Add additional notes about how to deploy this on a live system
 ## Built With
 - Node.js - The runtime environment
 - npm - Dependency Management
+- ffmpeg
 
 ## Authors
 Sebastian Vega - sebakc

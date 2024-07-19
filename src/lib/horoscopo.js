@@ -2,7 +2,6 @@ const axios = require('axios')
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const NodeCache = require( "node-cache" );
-const { get } = require('http');
 const cache = new NodeCache()
 
 function getToday() {

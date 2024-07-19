@@ -15,11 +15,11 @@ function execCommand(command) {
   });
 }
 
-function isLinux() {
-  return process.platform === 'linux';
+function isWindows() {
+  return process.platform === 'win32';
 }
 
-const ffmpegPath = isLinux() ? execCommand('which ffmpeg') : execCommand('where ffmpeg');
+const ffmpegPath = isWindows() ? execCommand('where ffmpeg') : execCommand('which ffmpeg');
 
 // Set the path to the FFmpeg binary
 ffmpeg.setFfmpegPath(ffmpegPath);
