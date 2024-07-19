@@ -1,0 +1,24 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "6667:6667"
+    environment:
+      - CHANNELS
+      - USERS
+      - BOT_NAME
+      - HOST
+      - BOT_NICK
+      - RADIO_LINK
+      - IG_LINK
+      - API
+      - TEMAS
+      - PASSWORD
+      - START_TIMEOUT
+      - TELEGRAM_CHAT_ID
+      - OPENAI_API_KEY
