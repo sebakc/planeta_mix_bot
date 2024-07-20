@@ -1,5 +1,6 @@
 require('dotenv').config()
 module.exports = {
+  ADMIN: process.env.ADMIN,
   CHANNELS: process.env.CHANNELS,
   USERS: process.env.USERS,
   BOT_NAME: process.env.BOT_NAME,

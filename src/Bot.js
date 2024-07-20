@@ -10,14 +10,29 @@ const horoscopo = require("./lib/horoscopo");
 const envConfig = require("./envConfig");
 
 class Bot {
-  constructor() {
+  constructor({
+    CHANNELS,
+    ADMIN,
+    USERS,
+    BOT_NICK,
+    BOT_NAME,
+    PASSWORD,
+    HOST,
+  }) {
+    this.CHANNELS = CHANNELS.split(",");
+    this.ADMIN = ADMIN
+    this.USERS = USERS
+    this.BOT_NICK = BOT_NICK
+    this.BOT_NAME = BOT_NAME
+    this.PASSWORD = PASSWORD
+    this.HOST = HOST
+
     this.speak = false;
     this.start = new Date();
     this.temasTimeout = null;
     this.temasInterval = null;
     this.command = "";
 
-    this.CHANNELS = envConfig.CHANNELS.split(",");
     this.TIMEOUT = envConfig.START_TIMEOUT || 5;
     this.CHANNEL = this.CHANNELS[0];
     this.commands = []
@@ -26,11 +41,11 @@ class Bot {
 
   init() {
     try {
-      this.client = new irc.Client(envConfig.HOST, envConfig.BOT_NICK, {
+      this.client = new irc.Client(this.HOST, this.BOT_NICK, {
         channels: this.CHANNELS,
-        userName: envConfig.BOT_NICK,
-        password: envConfig.PASSWORD,
-        realName: envConfig.BOT_NAME,
+        userName: this.BOT_NICK,
+        password: this.PASSWORD,
+        realName: this.BOT_NAME,
       });
       console.log("Bot connected");
     } catch (error) {

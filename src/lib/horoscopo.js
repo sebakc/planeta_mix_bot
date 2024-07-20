@@ -3,7 +3,7 @@ const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 const NodeCache = require( "node-cache" );
 const cache = new NodeCache();
-const Scrapper = require('./scrapper')
+const Scrapper = require('./Scrapper')
 
 function getToday() {
   let today = new Date()
