@@ -20,7 +20,7 @@ class Bot {
     this.CHANNELS = envConfig.CHANNELS.split(",");
     this.TIMEOUT = envConfig.START_TIMEOUT || 5;
     this.CHANNEL = this.CHANNELS[0];
-
+    this.commands = []
     this.botCache = new NodeCache();
   }
 
@@ -157,14 +157,46 @@ class Bot {
     }
   }
 
+  buildCommand() {
+    const config = {
+      name:'',
+      description:'',
+      command:'',
+      usage:'',
+      example:'',
+      aliases:[],
+      action:()=>{}
+    }
+    this.commands
+  }
+
+  loadCommands() {
+    const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+    for (const file of commandFiles) {
+      const command = require(`./commands/${file}`);
+      this.commands.set(command.name, command);
+    }
+  }
+
   performActions(message) {
     if (message.includes("+horoscopo") || message.includes("+horo")) {
+      if(message.split(" ").length < 2) {
+        this.say(this.CHANNEL, "Por favor, introduce un signo válido. Ejemplo: +horoscopo aries. Para ver lista de signos usa +horoscopo list");
+        return
+      }
       const sign = message.split(" ")[1];
+      if(sign === "list") {
+        this.say(this.CHANNEL, "Lista de signos: aries, tauro, geminis, cancer, leo, virgo, libra, escorpio, sagitario, capricornio, acuario, piscis");
+        return
+      }
       horoscopo(sign)
         .then(res => {
           res.forEach(r => {
             this.say(this.CHANNEL, r);
           });
+        }).catch(err => {
+          this.say(this.CHANNEL, err.message);
+          this.say(this.CHANNEL, "Lista de signos: aries, tauro, geminis, cancer, leo, virgo, libra, escorpio, sagitario, capricornio, acuario, piscis");
         });
     }
     if (message === "+radio") {
