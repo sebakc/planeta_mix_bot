@@ -91,19 +91,14 @@ class Bot {
       telegram.sendMessage(envConfig.TELEGRAM_CHAT_ID, `${from}: ${message}`);
     }
     if (envConfig.USERS.toLowerCase().includes(from.toLowerCase())) {
+      if ("!help".includes(message)) {
+        this.commands.printHelp(from);
+      }
       const args = message?.split("#");
       if (!args) return;
       if (message.includes("!chan#")) {
         const [channel, sayit] = args[1].split(/ (.*)/s);
         this.say(`#${channel}`, sayit);
-      }
-      if ("!aiura".includes(message)) {
-        this.say(from, "!chan#elcanal el mensaje que quieres mandar. Ej: !chan#planeta_mix el seba es un ser de luz");
-        this.say(from, "+temas. Para que el bot diga que cancion esta sonando, dura 2 horas");
-        this.say(from, "+temas down. Para que el bot deje de decir que cancion esta sonando");
-        this.say(from, "+ig. Para que muestre el instagram");
-        this.say(from, "+insta. Para que muestre el instagram");
-        this.say(from, "+radio. Para que muestre la radio");
       }
     }
   }
@@ -175,7 +170,6 @@ class Bot {
   }
 
   async performActions(message) {
-    // get all from split except the first element
     const split = message.split(" ");
     const params = split.slice(1);
     for (const {action, command, aliases} of this.commands.commands) {
@@ -185,12 +179,6 @@ class Bot {
       }
     }
     return
-    if (message === "+temas down") {
-      this.botCache.set("current", "");
-      clearInterval(this.temasInterval);
-      clearTimeout(this.temasTimeout);
-      this.botCache.set("scream", false);
-    }
   }
 }
 

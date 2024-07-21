@@ -8,7 +8,7 @@ class Temas {
     this.temasInterval = null;
     this.temasTimeout = null;
   }
-  action() {
+  up() {
     this.speak = true;
     this.temasInterval = this.temas();
     this.temasTimeout = setTimeout(() => {
@@ -32,7 +32,7 @@ class Temas {
       tell();
     }, 1000 * 10);
   }
-  temasDown() {
+  down() {
     this.current = null;
     clearInterval(this.temasInterval);
     clearTimeout(this.temasTimeout);

@@ -5,7 +5,6 @@ class Commands {
   constructor(app) {
     this.app = app
     this.commands = [];
-    this.help = [];
   }
   /**
    * add a new command
@@ -21,10 +20,11 @@ class Commands {
     this.commands.next(this.command);
   }
   
-  printHelp() {
-    this.help.forEach(({ name, description }) => {
-      const commands = this.help.map(({ command, aliases }) => `${command} (${aliases.join(', ')})`)
-      this.app.say(this.app.CHANNEL, `${name}: ${commands} - ${description}`)
+  printHelp(from) {
+    const to = from || this.app.CHANNEL
+    this.commands.forEach(({ name, description, command, aliases }) => {
+      aliases = aliases.length ? `[${aliases.join(", ")}] - ` : ""
+      this.app.say(to, `${command}: ${aliases}${description}`)
     })
   }
   /**
@@ -33,12 +33,10 @@ class Commands {
    */
   echo({ message, name, description, command, aliases }) {
     const action = () => this.app.say(this.app.CHANNEL, message)
-    this.help.push({ name, description, command, aliases });
     return { name, description, command, aliases, action };
   }
   custom({ callback, params, name, description, command, aliases }) {
     const action =  ({params, message}) => callback({ app: this.app, params, message })
-    this.help.push({ name, description, command, aliases });
     return { name, description, command, aliases, action };
   }
 }

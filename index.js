@@ -12,7 +12,6 @@ const app = new Bot({
   HOST: envConfig.HOST,
 });
 const temas = new Temas(app);
-// uncaught error protection
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
 });
@@ -38,8 +37,8 @@ const temasUp = app.commands.custom({
   description: 'Muestra temas que estan sonando',
   command: '+temas',
   aliases: [],
-  callback: ({ app }) => {
-    temas.action();
+  callback: () => {
+    temas.up();
   }
 });
 
@@ -50,7 +49,7 @@ const temasDown = app.commands.custom({
   aliases: ['+stop'],
   callback: ({ app }) => {
     app.say(app.CHANNEL, 'Deteniendo temas...');
-    temas.temasDown();
+    temas.down();
   }
 });
 
