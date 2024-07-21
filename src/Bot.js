@@ -1,14 +1,12 @@
 const irc = require("irc");
-const axios = require("axios");
 const NodeCache = require("node-cache");
 const fs = require("fs");
 const request = require("request");
 const OpenAI = require("openai");
 const telegram = require("./lib/telegram");
 const audioTransformer = require("./lib/audio-transformer");
-const horoscopo = require("./lib/horoscopo");
 const envConfig = require("./envConfig");
-
+const Commands = require("./lib/Commands");
 class Bot {
   constructor({
     CHANNELS,
@@ -35,8 +33,8 @@ class Bot {
 
     this.TIMEOUT = envConfig.START_TIMEOUT || 5;
     this.CHANNEL = this.CHANNELS[0];
-    this.commands = []
     this.botCache = new NodeCache();
+    this.commands = new Commands(this);
   }
 
   init() {
@@ -44,7 +42,7 @@ class Bot {
       this.client = new irc.Client(this.HOST, this.BOT_NICK, {
         channels: this.CHANNELS,
         userName: this.BOT_NICK,
-        password: this.PASSWORD,
+        //password: this.PASSWORD,
         realName: this.BOT_NAME,
       });
       console.log("Bot connected");
@@ -71,6 +69,10 @@ class Bot {
     this.client.addListener("pm", (from, message) => this.handlePrivateMessage(from, message));
     this.client.addListener(`message${this.CHANNEL}`, (from, message) => this.handleChannelMessage(message));
     this.client.addListener("error", message => console.log("error: ", message));
+    this.client.addListener("reconnect", message => {
+      console.log("reconnect: ", message);
+      this.init();
+    });
   }
 
   setSpeakTimeout() {
@@ -172,86 +174,23 @@ class Bot {
     }
   }
 
-  buildCommand() {
-    const config = {
-      name:'',
-      description:'',
-      command:'',
-      usage:'',
-      example:'',
-      aliases:[],
-      action:()=>{}
-    }
-    this.commands
-  }
-
-  loadCommands() {
-    const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
-    for (const file of commandFiles) {
-      const command = require(`./commands/${file}`);
-      this.commands.set(command.name, command);
-    }
-  }
-
-  performActions(message) {
-    if (message.includes("+horoscopo") || message.includes("+horo")) {
-      if(message.split(" ").length < 2) {
-        this.say(this.CHANNEL, "Por favor, introduce un signo válido. Ejemplo: +horoscopo aries. Para ver lista de signos usa +horoscopo list");
-        return
+  async performActions(message) {
+    // get all from split except the first element
+    const split = message.split(" ");
+    const params = split.slice(1);
+    for (const {action, command, aliases} of this.commands.commands) {
+      if (command == split[0] || aliases.includes(split[0])) {
+        await action({ params, message });
+        break;
       }
-      const sign = message.split(" ")[1];
-      if(sign === "list") {
-        this.say(this.CHANNEL, "Lista de signos: aries, tauro, geminis, cancer, leo, virgo, libra, escorpio, sagitario, capricornio, acuario, piscis");
-        return
-      }
-      horoscopo(sign)
-        .then(res => {
-          res.forEach(r => {
-            this.say(this.CHANNEL, r);
-          });
-        }).catch(err => {
-          this.say(this.CHANNEL, err.message);
-          this.say(this.CHANNEL, "Lista de signos: aries, tauro, geminis, cancer, leo, virgo, libra, escorpio, sagitario, capricornio, acuario, piscis");
-        });
     }
-    if (message === "+radio") {
-      this.say(this.CHANNEL, envConfig.RADIO_LINK);
-    }
-    if (message === "+insta" || message === "+ig") {
-      this.say(this.CHANNEL, envConfig.IG_LINK);
-    }
-    if (message === "+temas") {
-      this.botCache.set("scream", true);
-      this.temasInterval = this.temas();
-      this.temasTimeout = setTimeout(() => {
-        this.say(this.CHANNEL, "temas off");
-        this.botCache.set("scream", false);
-        clearInterval(this.temasInterval);
-      }, 1000 * 60 * parseInt(envConfig.TEMAS));
-    }
+    return
     if (message === "+temas down") {
       this.botCache.set("current", "");
       clearInterval(this.temasInterval);
       clearTimeout(this.temasTimeout);
       this.botCache.set("scream", false);
     }
-  }
-
-  temas(sec = 10) {
-    const tell = () => {
-      axios.post(envConfig.API)
-        .then(res => {
-          const prev = this.botCache.get("current");
-          if (prev !== res.data.title && this.botCache.get("scream")) {
-            this.say(this.CHANNEL, `${res.data.title} (8)`);
-            this.botCache.set("current", res.data.title);
-          }
-        });
-    };
-    tell();
-    return setInterval(() => {
-      tell();
-    }, 1000 * sec);
   }
 }
 
